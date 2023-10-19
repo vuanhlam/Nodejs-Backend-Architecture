@@ -17,6 +17,9 @@ app.use(helmet())
 app.use(compression())
 
 // init db
+require('./dbs/init.mongodb')
+const { countConnect } = require('./helpers/check.connect');
+countConnect()
 
 // init routes
 app.get('/', (req, res, next) => {
