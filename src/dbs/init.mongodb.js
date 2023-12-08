@@ -2,9 +2,12 @@
 
 const mongoose = require("mongoose");
 const { countConnect } = require("../helpers/check.connect");
+const {
+  db: { host, name, port },
+} = require("../configs/config.mongodb");  
 
-const connectionString = `mongodb://127.0.0.1/shopDev`;
-
+const connectionString = `mongodb://${host}:${port}/${name}`;
+console.log(connectionString);
 class Database {
   constructor() {
     this.connect();
