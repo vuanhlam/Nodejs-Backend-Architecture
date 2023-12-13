@@ -16,7 +16,7 @@ const apiKey = async (req, res, next) => {
         message: "Forbidden Error",
       });
     }
-    // check objKey
+    // 2. check objKey
     const objKey = await findById(key);
 
     if (!objKey) {
@@ -27,10 +27,12 @@ const apiKey = async (req, res, next) => {
 
     req.objKey = objKey;
 
-    return next();
+    next();
   } catch (error) {}
 };
 
+// closure 
+// function trả về một hàm, mà hàm đó có thể sử dụng các biến của hàm cha 
 const permission = (permission) => {
   return (req, res, next) => {
     if (!req.objKey.permissions) {
@@ -50,7 +52,14 @@ const permission = (permission) => {
   };
 };
 
+const asyncHandler = fn => {
+  return (req, res, next) => {
+    fn(req, res, next).catch(next);
+  }
+}
+
 module.exports = {
   apiKey,
-  permission
+  permission,
+  asyncHandler
 };
