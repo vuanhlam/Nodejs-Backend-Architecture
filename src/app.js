@@ -15,6 +15,10 @@ app.use(morgan("dev")); // => development
 
 app.use(helmet());
 app.use(compression());
+app.use(express.json());
+app.use(express.urlencoded({ // thay thế cho body parser 
+    extended: true
+}))
 
 // init db
 require("./dbs/init.mongodb");
@@ -22,13 +26,7 @@ const { checkOverload } = require("./helpers/check.connect");
 // checkOverload();
 
 // init routes
-app.get("/", (req, res, next) => {
-  const strCompress = "Hello world";
-  return res.status(200).json({
-    message: "Welcome to Nodejs",
-    metadata: strCompress.repeat(1000000),
-  });
-});
+app.use('/', require('./routes'))
 
 // handling error
 
