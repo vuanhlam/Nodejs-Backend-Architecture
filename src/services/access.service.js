@@ -25,6 +25,50 @@ class AccessService {
    1 - check this token used ?
    2 -  
   */
+  static handlerRefreshTokenV2 = async (req) => {
+    const {
+      user: { userId, email },
+      refreshToken,
+      keyStore,
+    } = req;
+
+    // truong hop refresh token da duoc su dung
+    if(keyStore.refreshTokensUsed.includes(refreshToken)) {
+      await KeyTokenService.deleteKeyById(userId);
+      throw new ForbiddenError("Some thing wrong happen!! Please relogin");
+    }
+
+    // truong hop refresh token chua duoc su dung
+    if(keyStore.refreshToken !== refreshToken) throw new AuthFailureError("Shop not registered!");
+
+    const foundShop = await findByEmail({ email });
+    if (!foundShop) throw new AuthFailureError("Shop not registered!");
+
+    const tokens = await createTokenPair(
+      { userId, email },
+      keyStore.publicKey,
+      keyStore.privateKey
+    );
+
+    await keyStore.updateOne({
+      $set: {
+        refreshToken: tokens.refreshToken,
+      },
+      $addToSet: {
+        refreshTokensUsed: refreshToken, // da duoc su dung de lay token moi
+      },
+    });
+
+    return {
+      user: { userId, email },
+      tokens,
+    };
+  };
+
+  /**
+   1 - check this token used ?
+   2 -  
+  */
   static handlerRefreshToken = async (refreshToken) => {
     const foundToken = await KeyTokenService.findByRefreshTokenUsed(
       refreshToken
@@ -168,7 +212,7 @@ class AccessService {
         userId: newShop._id,
         publicKey,
         privateKey,
-        refreshToken: tokens.refreshToken
+        refreshToken: tokens.refreshToken,
       });
 
       if (!keyStore) {
