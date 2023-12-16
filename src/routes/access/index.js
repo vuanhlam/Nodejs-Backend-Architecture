@@ -14,4 +14,6 @@ router.post("/shop/login", asyncHandler(accessController.login));
 router.use(authentication)
 
 router.post("/shop/logout", asyncHandler(accessController.logout)); //xác định đúng đối tượng không rồi mới cho logout
+router.post("/shop/handlerRefreshToken", asyncHandler(accessController.handleRefreshToken));
+
 module.exports = router;
