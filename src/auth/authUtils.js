@@ -66,9 +66,8 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   /**
     1 - Check userId missing ?
     2 - check user in dbs
-    3 - get refreshToken
-    4 - verifyToken
-      - check keyStore with this userId ?
+    3 - verify refresh token
+    4 - veryfy access token
     5 - Ok all -> return next
   */
 
@@ -80,12 +79,13 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   const keyStore = await findByUserId(userId);
   if (!keyStore) throw new NotFoundError("Not Found Key store");
 
-  //3.
+  //3. verify refresh token => when need new access token
   const refreshToken = req.headers[HEADER.REFRESHTOKEN];
   if (!refreshToken) throw new AuthFailureError("Invalid Request");
   try {
-    const decodeUser = JWT.verify(refreshToken, keyStore.privateKey);
-    if (decodeUser.userId !== userId) throw new AuthFailureError("Invalid UserId");
+    const decodeUser = verifyJWT(refreshToken, keyStore.privateKey);
+    if (decodeUser.userId !== userId)
+      throw new AuthFailureError("Invalid UserId");
     req.keyStore = keyStore;
     req.user = decodeUser;
     req.refreshToken = refreshToken;
@@ -93,6 +93,20 @@ const authenticationV2 = asyncHandler(async (req, res, next) => {
   } catch (error) {
     throw error;
   }
+
+  //4. verify access token => normal request for authentication
+  const accessToken = req.headers[HEADER.AUTHORIZATION];
+  if (!accessToken) throw new NotFoundError("Invalid Request");
+
+  try {
+    const decodeUser = verifyJWT(accessToken, keyStore.publicKey);
+    if (userId !== decodeUser.userId)
+      throw new AuthFailureError("Invalid UserId");
+    req.keyStore = keyStore;
+    next();
+  } catch (error) {
+    throw error;
+  } 
 });
 
 const verifyJWT = (token, secretKey) => {

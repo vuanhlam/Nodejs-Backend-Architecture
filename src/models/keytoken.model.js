@@ -22,7 +22,7 @@ const keyTokenSchema = new Schema(
       required: true,
     },
     refreshTokensUsed: { // nhung RT đã được sử dụng
-      type: Array,
+      type: Array, // user có thể đăng nhập trên nhiều thiêt bị 
       default: []
     },
     refreshToken: { // RT hien tai dang su dung 
