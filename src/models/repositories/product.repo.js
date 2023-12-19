@@ -16,6 +16,21 @@ const findAllPublishForShop = async ({ query, limit, skip }) => {
   return queryProduct({ query, limit, skip });
 };
 
+// https://anonystick.com/blog-developer/full-text-search-mongodb-chi-mot-bai-viet-khong-can-nhieu-2022012063033379
+const searchProductByUser = async ({ keySearch }) => {
+  const regexSearch = new RegExp(keySearch);
+  const result = await product
+    .find(
+      {
+        isPublished: true,
+        $text: { $search: regexSearch },
+      },
+      { score: { $meta: "textScore" } } // tìm kiếm thì chỉ muốn giá trị đúng nhất sẽ có nhiệm vụ sắp xếp những cụm từ chính xác theo điểm số score
+    )
+    .sort({ score: { $meta: "textScore" } });
+  return result;
+};
+
 const publishProductByShop = async ({ product_shop, product_id }) => {
   const foundShop = await product.findOne({
     product_shop: new Types.ObjectId(product_shop),
@@ -57,5 +72,6 @@ module.exports = {
   findAllDraftForShop,
   publishProductByShop,
   findAllPublishForShop,
-  unPublishProductByShop
+  unPublishProductByShop,
+  searchProductByUser
 };

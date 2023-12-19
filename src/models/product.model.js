@@ -31,6 +31,8 @@ var productSchema = new Schema(
     collection: COLLECTION_NAME,
   }
 );
+// create index for search
+productSchema.index({product_name: 'text', product_description: 'text'})
 
 // define the product type  = clothing
 const clothingSchema = new Schema(
