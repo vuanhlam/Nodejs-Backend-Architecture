@@ -7,7 +7,11 @@ const {
   electronic,
   furniture,
 } = require("../models/product.model");
-const { findAllDraftForShop } = require("../models/repositories/product.repo");
+const {
+  findAllDraftForShop,
+  publishProductByShop,
+  findAllPublishForShop
+} = require("../models/repositories/product.repo");
 
 // define Factory class to create product
 
@@ -31,10 +35,21 @@ class ProductFactory {
     return new productClass(payload).createProduct();
   }
 
+  // PUT //
+  static async publishProductByShop({ product_shop, product_id }) {
+    return await publishProductByShop({product_shop, product_id});
+  }
+  // END PUT //
+
   // query
   static async findAllDraftForShop({ product_shop, limit = 50, skip = 0 }) {
     const query = { product_shop, isDraft: true };
-    return await findAllDraftForShop(query, limit, skip);
+    return await findAllDraftForShop({query, limit, skip});
+  }
+
+  static async findAllPublishForShop({ product_shop, limit = 50, skip = 0 }) {
+    const query = { product_shop, isPublished: true };
+    return await findAllPublishForShop({query, limit, skip});
   }
 }
 
