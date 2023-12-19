@@ -22,7 +22,7 @@ class ProductFactory {
   }
 }
 
-// define basic  product class
+// define basic product class
 class Product {
   constructor({
     product_name,
@@ -44,31 +44,35 @@ class Product {
     this.product_attributes = product_attributes;
   }
 
-  async createProduct() {
-    return await product.create(this);
+  async createProduct(product_id) {
+    return await product.create({ ...this, _id: product_id });
   }
 }
 
 // define sub-class for different product type = clothing
 class Clothing extends Product {
   async createClothingProduct() {
-    const newClothing = await clothing.create(this.product_attributes);
+    const newClothing = await clothing.create({
+      ...this.product_attributes,
+      product_shop: this.product_shop,
+    });
     if (!newClothing) throw new BadRequestError("create new Clothing Error");
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newClothing._id);
     if (!newProduct) throw new BadRequestError("create new Product Error");
 
     return newProduct;
   }
 }
 
+// define sub-class for different product type = electronic
 class Electronic extends Product {
   async createElectronicProduct() {
-    const newElectronic = await electronic.create(this.product_attributes);
+    const newElectronic = await electronic.create({...this.product_attributes, product_shop: this.product_shop});
     if (!newElectronic)
       throw new BadRequestError("create new Electronic Error");
 
-    const newProduct = await super.createProduct();
+    const newProduct = await super.createProduct(newElectronic._id);
     if (!newProduct) throw new BadRequestError("create new Product Error");
 
     return newProduct;
