@@ -68,10 +68,29 @@ const queryProduct = ({ query, limit, skip }) => {
     .exec();
 };
 
+const findAllProducts = async ({ limit, sort, page, filter, select }) => {
+  const skip = (page - 1) * limit;
+  const sortBy = sort === "ctime" ? { _id: -1 } : { _id: 1 };
+  const products = await product
+    .find(filter)
+    .sort(sortBy)
+    .skip(skip)
+    .limit(limit)
+    .select(select);
+
+  return products;
+};
+
+const findProduct = async ({ product_id }) => {
+  return await product.findById(product_id).select("-__v");
+};
+
 module.exports = {
   findAllDraftForShop,
   publishProductByShop,
   findAllPublishForShop,
   unPublishProductByShop,
-  searchProductByUser
+  searchProductByUser,
+  findAllProducts,
+  findProduct
 };
