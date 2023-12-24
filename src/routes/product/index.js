@@ -13,6 +13,7 @@ router.get('/:id', asyncHandler(productController.findProduct));
 router.use(authenticationV2);
 
 router.post("", asyncHandler(productController.createProduct));
+router.patch("/:id", asyncHandler(productController.updateProduct));
 router.post('/publish/:id', productController.publishProductByShop)
 router.post('/unpublish/:id', productController.unPublishProductByShop)
 
