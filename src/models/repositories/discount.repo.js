@@ -12,7 +12,7 @@ const updateDiscountById = async ({ discountId, shopId, payload }) => {
   );
 };
 
-const findDiscount = async ({ code, shopId }) => {
+const checkDiscountExists = async ({ code, shopId }) => {
   return await discount
     .findOne({
       discount_code: code,
@@ -65,7 +65,7 @@ const findAllDiscountCodeSelect = async ({
 
 module.exports = {
   updateDiscountById,
-  findDiscount,
+  checkDiscountExists,
   findAllDiscountCodeUnSelect,
   findAllDiscountCodeSelect
 };
