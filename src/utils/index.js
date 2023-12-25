@@ -1,33 +1,33 @@
 "use strict";
 
 const _ = require("lodash");
-const { Types } = require('mongoose')
+const { Types } = require("mongoose");
 
-const convertToObjectIdMongodb = id => Types.ObjectId(id)
+const convertToObjectIdMongodb = (id) => new Types.ObjectId(id);
 
 const getInfoData = ({ fields = [], object = {} }) => {
   return _.pick(object, fields);
 };
 
 const getSelectData = (select = []) => {
-  return Object.fromEntries(select.map(el => [el, 1]))
-}
+  return Object.fromEntries(select.map((el) => [el, 1]));
+};
 
 const unGetSelectData = (select = []) => {
-  return Object.fromEntries(select.map(el => [el, 0]))
-}
+  return Object.fromEntries(select.map((el) => [el, 0]));
+};
 
 const removeUndefinedObject = (obj) => {
-  console.log('[1]::', obj);
+  console.log("[1]::", obj);
   Object.keys(obj).forEach((key) => {
     if (obj[key] === null || obj[key] === undefined) {
       delete obj[key];
     }
-    if(obj[key] && typeof obj[key] === 'object') {
-      removeUndefinedObject(obj[key])
+    if (obj[key] && typeof obj[key] === "object") {
+      removeUndefinedObject(obj[key]);
     }
   });
-  console.log('[2]::', obj);
+  console.log("[2]::", obj);
   return obj;
 };
 
@@ -53,8 +53,8 @@ const updateNestedObjectParser = (obj) => {
       Object.keys(response).forEach((a) => {
         final[`${key}.${a}`] = response[a];
       });
-    }else {
-      final[key] = obj[key]
+    } else {
+      final[key] = obj[key];
     }
   });
   return final;
@@ -66,5 +66,5 @@ module.exports = {
   updateNestedObjectParser,
   convertToObjectIdMongodb,
   getSelectData,
-  unGetSelectData
+  unGetSelectData,
 };

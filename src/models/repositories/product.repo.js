@@ -7,6 +7,7 @@ const {
   furniture,
 } = require("../../models/product.model");
 const { Types } = require("mongoose");
+const { getSelectData } = require("../../utils");
 
 const findAllDraftForShop = async ({ query, limit, skip }) => {
   return queryProduct({ query, limit, skip });
@@ -76,7 +77,7 @@ const findAllProducts = async ({ limit, sort, page, filter, select }) => {
     .sort(sortBy)
     .skip(skip)
     .limit(limit)
-    .select(select)
+    .select(getSelectData(select))
     .lean();
 
   return products;

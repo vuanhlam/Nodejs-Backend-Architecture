@@ -25,25 +25,26 @@ const {
  */
 
 class DiscountService {
+
   static async createDiscountCode(payload) {
     const {
-      code,
-      start_date,
-      end_date,
-      is_active,
-      shopId,
-      min_order_value,
-      product_ids,
-      applies_to,
       name,
       description,
       type,
-      max_value,
-      max_uses,
-      uses_count,
-      max_uses_per_user,
       value,
-      users_userd,
+      max_value,
+      code,
+      start_date,
+      end_date,
+      max_uses,
+      used_count,
+      users_used,
+      max_uses_per_user,
+      min_order_value,
+      is_active,
+      applies_to,
+      product_ids,
+      shopId,
     } = payload;
     if (new Date() < new Date(start_date) || new Date() > new Date(end_date)) {
       throw new BadRequestError("Discount code has expried");
@@ -69,14 +70,14 @@ class DiscountService {
       discount_start_date: start_date,
       discount_end_date: new Date(end_date),
       discount_max_uses: new Date(max_uses),
-      discount_used_count: uses_count,
-      discount_users_used: users_userd,
+      discount_used_count: used_count,
+      discount_users_used: users_used,
       discount_max_use_per_user: max_uses_per_user,
       discount_min_order_value: min_order_value || 0,
       discount_shopId: shopId,
       discount_is_active: is_active,
-      discount_applies_to: applies_to === "all" ? [] : product_ids,
-      discount_product_ids: product_ids,
+      discount_applies_to: applies_to,
+      discount_product_ids: applies_to === 'all' ? [] : product_ids,
     });
 
     return newDiscount;
@@ -96,14 +97,14 @@ class DiscountService {
   /**
    * Get all discount codes available with products - user
    */
-  static async getAllDiscountCodeWithProduct({
+  static async getAllProductsWithDiscountCode({
     code,
     shopId,
     userId,
     limit,
     page,
   }) {
-    const foundDiscount = checkDiscountExists({ code, shopId });
+    const foundDiscount = await checkDiscountExists({ code, shopId });
 
     if (!foundDiscount || !foundDiscount.discount_is_active) {
       throw new NotFoundError("Discount not exists!");
@@ -190,13 +191,13 @@ class DiscountService {
       discount_min_order_value,
       discount_max_use_per_user,
       discount_type,
-      discount_value
+      discount_value,
     } = foundDiscount;
     if (!discount_is_active) throw new NotFoundError(`Discount expired!`);
     if (discount_users_used > discount_max_uses)
       throw new NotFoundError(`Discount are out`);
     if (
-      new Date() < new Date(discount_start_date) ||
+      new Date() < new Date(discount_start_date) || new Date() >
       new Date(discount_end_date)
     ) {
       throw new NotFoundError(`Discount code has expired!`);
@@ -210,27 +211,67 @@ class DiscountService {
         return acc + product.quantity * product.price;
       }, 0);
 
-      if(totalOrder < discount_min_order_value) {
-        throw new NotFoundError(`Discount requires a minimun order value of ${discount_min_order_value}`)
+      if (totalOrder < discount_min_order_value) {
+        throw new NotFoundError(
+          `Discount requires a minimun order value of ${discount_min_order_value}`
+        );
       }
     }
 
-    if(discount_max_use_per_user > 0) {
-        const userDiscount = discount_users_used.find((user) => user.userId === userId);
-        if(userDiscount) {
-            throw new NotFoundError(`Discount was used!`)
-        }
+    if (discount_max_use_per_user > 0) {
+      const userDiscount = discount_users_used.find(
+        (user) => user.userId === userId
+      );
+      if (userDiscount) {
+        throw new NotFoundError(`Discount was used!`);
+      }
     }
 
     // check xem discount nay la fixed_amount hay percentage
-    const amount = discount_type === 'fixed_amount' ? discount_value : totalOrder * (discount_value / 100); 
+    const amount =
+      discount_type === "fixed_amount"
+        ? discount_value
+        : totalOrder * (discount_value / 100);
 
     return {
-        totalOrder,
-        discount: amount,
-        totalPrice: totalOrder - amount
-    }
+      totalOrder,
+      discount: amount,
+      totalPrice: totalOrder - amount,
+    };
   }
+
+  static async deleteDiscountCode({ shopId, code }) {
+    const deleted = await discount.findOneAndDelete({
+      discount_code: code,
+      discount_shopId: convertToObjectIdMongodb(shopId),
+    });
+
+    return deleted;
+  }
+
+  static async cancelDiscountCode({ code, shopId, userId }) {
+    const foundDiscount = await checkDiscountExists({
+      code,
+      shopId: convertToObjectIdMongodb(shopId),
+    });
+
+    if(!foundDiscount) {
+      throw new NotFoundError('Discount code not exist!');
+    }
+
+    const result = await discount.findByIdAndUpdate(foundDiscount._id, {
+      $pull: { 
+        discount_users_used: userId,
+      },
+      $inc: {
+        discount_max_uses: 1,
+        discount_used_count: -1
+      }
+    })
+
+    return result;
+  }
+
 }
 
 module.exports = DiscountService;
