@@ -33,6 +33,11 @@ class CartService {
       return await userCart.save();
     }
 
+    // neu co gio hang roi nhung la sp khac
+    if (!userCart.cart_products.includes(product.productId)) {
+      return await createUserCart({ userId, product });
+    }
+
     // neu gio hang ton tai, va co sp nay roi ?
     return await updateCartQuantity({ userId, product });
   }
@@ -57,7 +62,8 @@ class CartService {
    *  ]
    */
   static async addToCartV2({ userId, shop_order_ids }) {
-    const { productId, quantity, old_quantity } = shop_order_ids[0]?.item_products[0];
+    const { productId, quantity, old_quantity } =
+      shop_order_ids[0]?.item_products[0];
 
     const foundProduct = await getProductById(productId);
 

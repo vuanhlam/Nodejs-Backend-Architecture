@@ -1,4 +1,4 @@
-const { unGetSelectData } = require("../../utils");
+const { unGetSelectData, convertToObjectIdMongodb } = require("../../utils");
 const cart = require("../cart.model");
 
 const createUserCart = async ({ userId, product }) => {
@@ -40,8 +40,13 @@ const deleteUserCartItem = async ({ userId, productId }) => {
   return deteleCart;
 };
 
+const findCartById = async (cartId) => {
+  return await cart.findOne({ _id: convertToObjectIdMongodb(cartId), cart_state: "active" }).lean();
+};
+
 module.exports = {
   createUserCart,
   updateCartQuantity,
   deleteUserCartItem,
+  findCartById,
 };
