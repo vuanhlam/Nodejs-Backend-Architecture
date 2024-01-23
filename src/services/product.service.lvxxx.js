@@ -18,7 +18,8 @@ const {
   findProduct,
   updateProductById,
 } = require("../models/repositories/product.repo");
-const { removeUndefinedObject, updateNestedObjectParser } = require("../utils");
+const { removeUndefinedObject, updateNestedObjectParser, convertToObjectIdMongodb } = require("../utils");
+const { pushNotiToSystem } = require("./notification.service");
 
 // define Factory class to create product
 
@@ -86,7 +87,12 @@ class ProductFactory {
       sort,
       filter,
       page,
-      select: ["product_name", "product_price", "product_thumb", "product_shop"],
+      select: [
+        "product_name",
+        "product_price",
+        "product_thumb",
+        "product_shop",
+      ],
     });
   }
 
@@ -124,8 +130,21 @@ class Product {
       await insertInventory({
         productId: newProduct._id,
         shopId: this.product_shop,
-        stock: this.product_quantity
+        stock: this.product_quantity,
+      });
+      
+      // push noti to system collection - create new product
+      pushNotiToSystem({
+        type: "SHOP-001",
+        receivedId: 1,
+        senderId: this.product_shop, 
+        options: {
+          product_name: this.product_name,
+          shop_name: this.product_shop,
+        },
       })
+        .then((rs) => console.log(rs))
+        .catch((err) => console.log(err));
     }
     return newProduct;
   }
