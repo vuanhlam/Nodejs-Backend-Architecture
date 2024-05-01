@@ -116,6 +116,24 @@ class CheckoutService {
         checkout_order
     }
   }
+
+  // order
+  static async orderByUser({ shop_order_list, cardId, userId, user_address = {}, user_payment = {} }) {
+    const { shop_order_list_new, checkout_order } = await CheckoutService.checkoutReview({
+        shop_order_list,
+        cardId,
+        userId,
+    })
+
+    // check lại một lần nữa xem vượt tồn kho hay không ?
+    // get new 
+    const products = shop_order_list_new.flatMap((order) => order.item_products);
+    console.log(`[1]::`, products);
+    for (let i = 0; i < products.length; i++) {
+        const { productId, quantity } = products[i];
+        
+    }
+  }
 }
 
 module.exports = CheckoutService;

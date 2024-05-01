@@ -10,6 +10,6 @@ const router = express.Router();
 // router.use(authenticationV2);   
 
 router.post("/product", asyncHandler(uploadController.uploadFile));
-router.post("/product/thumb", uploadDisk.single('quatao'), asyncHandler(uploadController.uploadFileThumb));
+router.post("/product/thumb", uploadDisk.single('file'), asyncHandler(uploadController.uploadFileThumb));
 
 module.exports = router;

@@ -27,7 +27,7 @@ var productSchema = new Schema(
     isPublished: { type: Boolean, default: false, index: true, select: false}
   },
   {
-    timestamps: true,
+    timestamps: true, 
     collection: COLLECTION_NAME,
   }
 );

@@ -5,8 +5,8 @@ const cloudinary = require('cloudinary').v2;
 
 // Return "https" URLs by setting secure: true
 cloudinary.config({
-    cloud_name: 'shoplam',
-    api_key: '669422866334237',
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 

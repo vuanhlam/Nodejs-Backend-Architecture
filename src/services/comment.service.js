@@ -143,7 +143,7 @@ class CommentService {
     const rightValue = comment.comment_right
 
     //2. tính width
-    const width = rightValue - leftValue + 1
+    const width = rightValue - leftValue + 1 // tổng số viền
 
     //3. xóa tất cả comment con
     await Comment.deleteMany({
@@ -153,7 +153,7 @@ class CommentService {
 
     //4. cập nhật giá trị left và right còn lại
     await Comment.updateMany({
-      comment_productId: convertToObjectIdMongodb(productId),
+      comment_productId: convertToObjectIdMongodb(productId), 
       comment_right: { $gt: rightValue }
     }, {
       $inc: { comment_right: -width }
