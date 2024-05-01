@@ -1,0 +1,11 @@
+error: 403 - email missing
+{"level":"error","message":"403 - email missing","timestamp":"2024-05-01T03:12:37.291Z"}
+[2024-05-01 10:16:20.357 AM] error: 	403 - email missing
+[2024-05-01 10:16:57.996 AM] error: 	403 - email missing
+[2024-05-01 10:17:07.407 AM] error: 403 - email missing
+
+
+- để phát triển hệ thống log trong ứng dụng lớn cần nhiều thứ hơn
+- nếu tất cả các log error, info, debug nằm trong 1 file thì dung lượng lớn dần sẽ làm như thế nào 
+    + phải tách file, limit size file được không 
+- làm sao để tìm kiếm thời gian một cách nhanh chóng
